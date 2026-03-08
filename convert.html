@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+</head>
+
+<body>
+    <pre id="output">Attendere...</pre>
+    <script src="data.js"></script>
+    <script>
+        window.onload = function () {
+            try {
+                const timeToMins = t => {
+                    let ts = typeof t === 'string' ? t : t.time;
+                    let [h, m] = ts.split(':');
+                    return parseInt(h) * 60 + parseInt(m);
+                };
+
+                const getVar = t => {
+                    return typeof t === 'string' ? null : t.variation?.trim();
+                };
+
+                const getTimeStr = t => {
+                    return typeof t === 'string' ? t : t.time;
+                };
+
+                let newStops = stavData.stops.map(s => {
+                    return {
+                        id: s.id,
+                        name: s.name,
+                        lat: s.lat,
+                        lng: s.lng
+                    };
+                });
+
+                let linesMap = {};
+                let events = [];
+
+                stavData.stops.forEach(stop => {
+                    if (!stop.routes) return;
+                    stop.routes.forEach(route => {
+                        let line = route.line;
+                        let dest = route.destination;
+                        let legend = route.legend || {};
+
+                        if (!linesMap[line]) {
+                            linesMap[line] = {
+                                id: line,
+                                name: line,
+                                description: `Linea ${line}`,
+                                color: line === 'Z553' ? '#e11d48' : (line === 'Z551' ? '#3b82f6' : (line === 'Z559' ? '#f59e0b' : '#10b981')),
+                                dayTypes: {
+                                    feriale_scolastico: [],
+                                    feriale_non_scolastico: [],
+                                    sabato_scolastico: [],
+                                    sabato_non_scolastico: [],
+                                    festivo: []
+                                }
+                            };
+                        }
+
+                        Object.keys(route.times).forEach(dayType => {
+                            let timesArray = route.times[dayType] || [];
+                            timesArray.forEach(t => {
+                                events.push({
+                                    stopId: stop.id,
+                                    line: line,
+                                    dest: dest,
+                                    dayType: dayType,
+                                    time: getTimeStr(t),
+                                    mins: timeToMins(t),
+                                    variation: getVar(t),
+                                    legend: legend
+                                });
+                            });
+                        });
+                    });
+                });
+
+                let groups = {};
+                events.forEach(e => {
+                    let key = `${e.line}::${e.dayType}::${e.dest}`;
+                    if (!groups[key]) groups[key] = [];
+                    groups[key].push(e);
+                });
+
+                Object.keys(groups).forEach(key => {
+                    let [line, dayType, dest] = key.split('::');
+                    let groupEvents = groups[key];
+                    groupEvents.sort((a, b) => a.mins - b.mins);
+
+                    let trips = [];
+
+                    while (groupEvents.length > 0) {
+                        let current = groupEvents.shift();
+                        let trip = [current];
+                        let lastEvent = current;
+                        let usedStops = new Set([current.stopId]);
+
+                        while (true) {
+                            let bestCandidate = null;
+                            let bestScore = -Infinity;
+                            for (let i = 0; i < groupEvents.length; i++) {
+                                let e = groupEvents[i];
+                                if (e.mins >= lastEvent.mins && e.mins <= lastEvent.mins + 50 && !usedStops.has(e.stopId)) {
+                                    let score = -(e.mins - lastEvent.mins); // favorisce divario minore (>0)
+                                    // Bonus variazione identica
+                                    if (e.variation === lastEvent.variation) score += 100;
+                                    else if (!e.variation && !lastEvent.variation) score += 50;
+                                    else if (e.variation && lastEvent.variation && e.variation !== lastEvent.variation) score -= 200;
+
+                                    if (score > bestScore) {
+                                        bestScore = score;
+                                        bestCandidate = e;
+                                    }
+                                }
+                            }
+                            if (!bestCandidate || bestScore < -150) break;
+                            trip.push(bestCandidate);
+                            lastEvent = bestCandidate;
+                            usedStops.add(bestCandidate.stopId);
+                            groupEvents.splice(groupEvents.indexOf(bestCandidate), 1);
+                        }
+                        // Non includere trip isolati di 1 sola fermata a meno che dest = origine
+                        if (trip.length > 0) {
+                            trips.push(trip);
+                        }
+                    }
+
+                    let prefix = dayType.split('_').map(w => w[0].toUpperCase()).join('');
+                    trips.forEach((tStops, idx) => {
+                        let legendMappings = {};
+                        tStops.forEach(t => Object.assign(legendMappings, t.legend));
+
+                        let tripId = `${line}_${prefix}_${idx + 1}`;
+                        let finalStops = tStops.map(ts => {
+                            let res = { stopId: ts.stopId, time: ts.time };
+                            if (ts.variation) res.variation = ts.variation;
+                            return res;
+                        });
+
+                        linesMap[line].dayTypes[dayType].push({
+                            tripId: tripId,
+                            destination: dest,
+                            stops: finalStops,
+                            legend: legendMappings
+                        });
+                    });
+                });
+
+                let finalLines = Object.values(linesMap);
+
+                let outputStr = `const stavData = {\n    // 1. ANAGRAFICA FERMATE (Flat List)\n    stops: ${JSON.stringify(newStops, null, 4)},\n\n    // 2. LINEE E CORSE (Trip-centric)\n    lines: ${JSON.stringify(finalLines, null, 4)}\n};\n\nif (typeof module !== "undefined" && module.exports) module.exports = stavData;\n`;
+
+                document.getElementById('output').textContent = outputStr;
+            } catch (e) {
+                document.getElementById('output').textContent = 'ERROR: ' + e.message;
+            }
+        };
+    </script>
+</body>
+
+</html>

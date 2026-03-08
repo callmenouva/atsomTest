@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <title>myATSOM | Il tuo mobility companion</title>
+    <link rel="icon" type="image/png" href="FavIconAtsom.png">
+
+    <!-- Supporto PWA iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="myATSOM">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="landing-body">
+    <!-- Animated Mesh Background -->
+    <div class="mesh-gradient"></div>
+
+    <!-- NAVBAR LONDON -->
+    <nav class="navbar">
+        <a href="index.html" style="display: flex; align-items: center; text-decoration: none;">
+            <img src="atsom.png" alt="ATSOM Logo"
+                style="height: 48px; width: auto; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.2));">
+        </a>
+        <div class="nav-links">
+            <a href="#features">Funzionalità</a>
+            <a href="#about">Chi Siamo</a>
+            <a href="install.html" class="nav-btn-right">Installa ora</a>
+        </div>
+        <!-- Menu Toggle per Mobile -->
+        <button class="menu-toggle" id="menuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </nav>
+
+    <!-- HERO LONDON -->
+    <header class="hero">
+        <div class="hero-content reveal">
+            <h1>La mobilità<br>più intelligente.</h1>
+            <p>myATSOM, l'app che ti aiuta con gli orari delle linee STAV.</p>
+            <div class="hero-cta">
+                <a href="install.html" class="btn-london-main">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Scarica l'App
+                </a>
+                <a href="#features" class="btn-london-sub">Scopri di più</a>
+            </div>
+        </div>
+
+        <div class="hero-visual reveal">
+            <!-- Floating Cards -->
+            <div class="floating-card card-1" style="z-index: 3;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                    <div style="width: 30px; height: 30px; background: #6366f1; border-radius: 8px;"></div>
+                    <span style="font-size: 0.7rem; font-weight: 700; color: white;">Prossima Fermata</span>
+                </div>
+                <div style="font-size: 0.9rem; font-weight: 800; color: white;">Abbiategrasso FS</div>
+            </div>
+
+            <div class="floating-card card-2" style="z-index: 3;">
+                <div style="font-size: 0.7rem; color: rgba(255,255,255,0.6); margin-bottom: 4px;">Arrivo stimato</div>
+                <div style="font-size: 1.2rem; font-weight: 800; color: white;">2m 45s</div>
+            </div>
+
+            <!-- Main Mockup with Real Screenshot image -->
+            <div class="mockup-main">
+                <div class="mockup-inner" style="background: white;">
+                    <img src="ScreenshotAppCell.png" alt="App Screenshot"
+                        style="width: 100%; height: 100%; object-fit: cover; border-radius: 32px;"
+                        onerror="this.src='atsom.png'; this.style.objectFit='contain';">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ADDITIONAL CONTENT (Scorrevole) -->
+    <section id="features" class="london-section">
+        <span class="section-tag reveal">Tecnologia</span>
+        <h2 style="font-size: 3rem; font-weight: 800; color: white; margin-bottom: 4rem;" class="reveal">Costruita per
+            il futuro.</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 3rem;">
+            <div class="reveal"
+                style="background: rgba(255,255,255,0.05); padding: 3rem; border-radius: 40px; border: 1px solid rgba(255,255,255,0.1);">
+                <h3 style="color: white; font-size: 1.5rem; margin-bottom: 1rem;">Una app che non è una app</h3>
+                <p style="color: rgba(255,255,255,0.6); line-height: 1.6;">Grazie alla tecnologia PWA, myATSOM
+                    funziona
+                    come una normalissima applicazione. La cosa figa? Niente viene installato sul tuo dispositivo,
+                    tutto viene eseguito tramite il browser, ma con l'aspetto di un'applicazione.</p>
+            </div>
+            <div class="reveal"
+                style="background: rgba(255,255,255,0.05); padding: 3rem; border-radius: 40px; border: 1px solid rgba(255,255,255,0.1); transition-delay: 0.1s;">
+                <h3 style="color: white; font-size: 1.5rem; margin-bottom: 1rem;">Sicura e Privata</h3>
+                <p style="color: rgba(255,255,255,0.6); line-height: 1.6;">La fiducia è importante. myATSOM non salverà
+                    mai nessun dato personale (es. posizione, dati anagrafici) e non ha bisogno di cookie per
+                    funzionare.
+                    Niente cookie = te stai sereno!
+                </p>
+            </div>
+        </div>
+        <!-- CHI SIAMO SECTION -->
+        <section id="about" class="london-section">
+            <div style="display: flex; align-items: center; gap: 4rem; flex-wrap: wrap;">
+                <div class="reveal" style="flex: 1; min-width: 300px;">
+                    <span class="section-tag">L'Associazione</span>
+                    <h2 style="font-size: 3rem; font-weight: 800; color: white; margin-bottom: 2rem;">Chi Siamo</h2>
+                    <span class="section-tag">O meglio, chi sono</span>
+                    <p style="color: rgba(255,255,255,0.7); line-height: 1.8; font-size: 1.1rem; margin-bottom: 2rem;">
+                        Ciao! Sono Mattia, il fondatore di ATSOM (Associazione Trasporti Sud Ovest Milanese). Sono un
+                        appassionato di tecnologia e mobilità, e ho deciso di creare questa associazione per migliorare
+                        il
+                        trasporto pubblico nel nostro territorio.
+                    </p>
+                    <p style="color: rgba(255,255,255,0.7); line-height: 1.8; font-size: 1.1rem;">
+                        Credo fermamente che la tecnologia possa essere un potente strumento per migliorare la vita
+                        delle persone, e ho voluto mettere le mie competenze al servizio delle persone.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER LONDON -->
+        <footer style="padding: 5rem 10% 2rem; border-top: 1px solid rgba(255,255,255,0.05); text-align: center;">
+            <div style="margin-bottom: 3rem; opacity: 0.8;">
+                <img src="atsom.png" alt="ATSOM Logo"
+                    style="height: 60px; width: auto; filter: grayscale(1) invert(1) brightness(2);">
+            </div>
+            <p style="color: rgba(255,255,255,0.4); font-size: 0.8rem; font-weight: 500;">&copy; 2026 ATSOM |
+                Associazione
+                Trasporti Sud Ovest Milanese. Tutti i diritti riservati.</p>
+        </footer>
+
+        <script>
+            // Navbar Scroll Logic
+            const nav = document.querySelector('.navbar');
+            const menuToggle = document.getElementById('menuToggle');
+            const navLinks = document.querySelector('.nav-links');
+
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    nav.classList.add('scrolled');
+                } else {
+                    nav.classList.remove('scrolled');
+                }
+            });
+
+            // Hamburger Menu Toggle
+            menuToggle.addEventListener('click', () => {
+                navLinks.classList.toggle('active');
+                menuToggle.classList.toggle('active');
+            });
+
+            // Chiudi menu quando si clicca un link
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', () => {
+                    navLinks.classList.remove('active');
+                    menuToggle.classList.remove('active');
+                });
+            });
+
+            // Reveal on Scroll
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) entry.target.classList.add('active');
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js');
+            }
+        </script>
+</body>
+
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#11335C">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <title>myATSOM | Download</title>
+    <link rel="icon" type="image/png" href="FavIconAtsom.png">
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <link rel="stylesheet" href="style.css">
+    <script>
+        (function () {
+            // Rilevamento istantaneo: se siamo in PWA, vai subito a app.html
+            const isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+            if (isPWA) {
+                window.location.replace('app.html');
+            }
+        })();
+    </script>
+</head>
+
+<body class="install-body">
+    <!-- SCREEN DI INSTALLAZIONE OBBLIGATORIA -->
+    <div id="install-overlay" class="install-overlay">
+        <div class="install-card">
+            <img src="atsom.png" alt="ATSOM Logo" class="install-logo">
+            <h2>Installa l'App</h2>
+            <p>Per utilizzare <strong>myATSOM</strong> su PC o Smartphone e avere gli orari sempre pronti, devi
+                installare l'app sul tuo
+                dispositivo.</p>
+
+            <!-- Sezione per PC (Windows/Mac) e Android -->
+            <div id="install-instructions-android" class="install-instructions hidden">
+                <button id="install-button" class="install-btn-premium">Installa l'App</button>
+            </div>
+
+            <!-- Sezione per iOS -->
+            <div id="install-instructions-ios" class="install-instructions hidden">
+                <div class="ios-steps">
+                    <div class="step">
+                        <span class="step-num">1</span>
+                        <p>Tocca l'icona <strong>Condividi</strong> in basso <svg width="20" height="20"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                style="vertical-align: middle;">
+                                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                                <polyline points="16 6 12 2 8 6"></polyline>
+                                <line x1="12" y1="2" x2="12" y2="15"></line>
+                            </svg></p>
+                    </div>
+                    <div class="step">
+                        <span class="step-num">2</span>
+                        <p>Scorri e seleziona <strong>Aggiungi alla schermata Home</strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <p class="install-footer">Una volta installata, apri l'app dalla home screen o dal menu del PC.</p>
+        </div>
+    </div>
+
+    <!-- Script Logica Installazione -->
+    <script>
+        (function () {
+            // Rilevamento sistema operativo
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const androidInstructions = document.getElementById('install-instructions-android');
+            const iosInstructions = document.getElementById('install-instructions-ios');
+
+            if (isIOS) {
+                iosInstructions.classList.remove('hidden');
+            } else {
+                androidInstructions.classList.remove('hidden');
+            }
+
+            // Gestione pulsante installazione
+            let deferredPrompt;
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                console.log("Native install prompt available");
+            });
+
+            const installBtn = document.getElementById('install-button');
+            if (installBtn) {
+                installBtn.addEventListener('click', async () => {
+                    if (deferredPrompt) {
+                        deferredPrompt.prompt();
+                        const { outcome } = await deferredPrompt.userChoice;
+                        deferredPrompt = null;
+                    } else {
+                        // Messaggio specifico per Desktop se il pulsante non reagisce (es. già installata o Safari Mac)
+                        alert("Per installare l'app:\n\n- Su Chrome/Edge: Clicca l'icona 'Installa' nella barra dell'indirizzo in alto.\n- Altrimenti: Apri il menu del browser (⋮) e seleziona 'Installa App' o 'Aggiungi a Home'.");
+                    }
+                });
+            }
+
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js');
+            }
+        })();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#11335C">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <title>myATSOM | App</title>
+    <link rel="icon" type="image/png" href="FavIconAtsom.png">
+
+    <!-- Supporto PWA iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="myATSOM">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* In app.html, l'app è sempre visibile */
+        #app-content-wrapper {
+            display: block !important;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- CONTENUTI APP -->
+    <div id="app-content-wrapper">
+        <!-- TOP BANNER CON CURVATURA E LOGO -->
+        <div class="top-wave-banner">
+            <img src="CurvaturaSuperiore.png" alt="Onda Superiore" class="wave-bg">
+            <img src="atsom.png" alt="ATSOM Logo" class="wave-logo">
+        </div>
+
+        <div id="map"></div>
+
+        <main class="app-main map-bottom-panel" id="main-panel">
+            <div class="panel-handle-container" id="main-panel-handle">
+                <div class="panel-handle"></div>
+            </div>
+            <!-- BANNER SERVIZIO SOSPESO -->
+            <div id="suspended-banner" class="alert-banner hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
+                    </path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                <div>
+                    <strong>Servizio Sospeso</strong>
+                    <p>Oggi è una festività in cui il servizio STAV non è regolarmente attivo.</p>
+                </div>
+            </div>
+
+            <!-- SEZIONE RICERCA -->
+            <section id="search-section">
+                <div class="search-container">
+                    <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" id="stop-searchInput" placeholder="Es. Trezzano, Abbiategrasso..."
+                        autocomplete="off">
+                </div>
+
+                <div id="lists-container" class="lists-container">
+                    <!-- Sezione Vicino a te (nascosta di default se non ci sono dati) -->
+                    <div id="nearby-section" class="list-section hidden">
+                        <h3 class="section-subtitle">
+                            Fermate vicino a te
+                            <span class="live-dot"></span>
+                        </h3>
+                        <ul id="nearby-results" class="results-list"></ul>
+                    </div>
+
+                    <!-- Sezione Tutte le fermate -->
+                    <div id="all-section" class="list-section">
+                        <h3 class="section-subtitle" id="all-stops-title">Tutte le fermate</h3>
+                        <ul id="search-results" class="results-list"></ul>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Overlay scuro per quando si apre il modal -->
+        <div id="modal-overlay" class="overlay hidden"></div>
+
+        <!-- MODAL BOTTOM SHEET PER DETTAGLIO FERMATA -->
+        <section id="stop-details" class="bottom-sheet hidden">
+            <div class="sheet-handle"></div>
+
+            <div class="sheet-header">
+                <!-- Immagine Segnaposto per la Fermata (Sostituisci src) -->
+                <div class="stop-image-circular">
+                    <img src="placeholder-stop.jpg" alt="Fermata" id="stop-image-placeholder">
+                </div>
+                <h2 id="stop-name" class="stop-title">Nome Fermata</h2>
+                <button id="close-modal-btn" class="close-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="sheet-content">
+                <!-- SCHEDA IN EVIDENZA: IL PROSSIMO BUS -->
+                <div id="next-bus-highlight" class="highlight-card hidden">
+                    <div class="highlight-badge">In Arrivo</div>
+                    <div class="highlight-main">
+                        <div class="highlight-time-left">
+                            <span id="highlight-minutes" class="huge-text">--</span>
+                            <span class="small-text">min</span>
+                        </div>
+                        <div class="highlight-info">
+                            <div class="highlight-line" id="highlight-line-name">--</div>
+                            <div class="highlight-dest" id="highlight-dest-name">direzione Sconosciuta</div>
+                        </div>
+                    </div>
+                    <div class="highlight-footer">
+                        <span>Orario corsa:</span>
+                        <strong id="highlight-exact-time">--:--</strong>
+                    </div>
+                </div>
+
+                <h3 class="subtitle">Tutte le corse da questa fermata</h3>
+                <!-- DAY SELECTOR CHIPS -->
+                <div class="day-chips-container">
+                    <button class="day-chip active" data-day="feriale_scolastico">Lun-Ven (Scolastico)</button>
+                    <button class="day-chip" data-day="feriale_non_scolastico">Lun-Ven (Non Scolastico)</button>
+                    <button class="day-chip" data-day="sabato_scolastico">Sabato (Scolastico)</button>
+                    <button class="day-chip" data-day="sabato_non_scolastico">Sabato (Non Scolastico)</button>
+                    <button class="day-chip" data-day="festivo">Domenica / Festivo</button>
+                </div>
+
+                <div id="routes-container" class="routes-list">
+                    <!-- Le altre linee e gli orari appariranno qui -->
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- CARICAMENTO SCRIPT -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
