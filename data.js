@@ -130,20 +130,20 @@ const stavData = {
         {
             "id": "stop_gagg_cim",
             "name": "Gaggiano - Cimitero",
-            "lat": 45,3963679,
-            "lng": 9,0301294
+            "lat": 45.3963679,
+            "lng": 9.0301294
         },
         {
             "id": "stop_vig",
             "name": "Vigano",
-            "lat": 45,3799770,
-            "lng": 9,0282039
+            "lat": 45.3799770,
+            "lng": 9.0282039
         },
         {
             "id": "stop_vig2",
             "name": "Vigano",
-            "lat": 45,3796602,
-            "lng": 9,0284486
+            "lat": 45.3796602,
+            "lng": 9.0284486
         },
         {
             "id": "stop_vito",
@@ -10668,6 +10668,7 @@ if (typeof window !== "undefined") {
 if (typeof module !== "undefined") {
     module.exports = stavData;
 }
+
 
 
 
