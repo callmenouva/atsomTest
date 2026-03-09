@@ -140,6 +140,12 @@ const stavData = {
             "lng": 9,0282039
         },
         {
+            "id": "stop_vig2",
+            "name": "Vigano",
+            "lat": 45,3796602,
+            "lng": 9,0284486
+        },
+        {
             "id": "stop_vito",
             "name": "San Vito",
             "lat": 45.419784,
@@ -10662,5 +10668,6 @@ if (typeof window !== "undefined") {
 if (typeof module !== "undefined") {
     module.exports = stavData;
 }
+
 
 
