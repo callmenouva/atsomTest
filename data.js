@@ -128,6 +128,18 @@ const stavData = {
             "lng": 9.039100
         },
         {
+            "id": "stop_gagg_cim",
+            "name": "Gaggiano - Cimitero",
+            "lat": 45,3963679,
+            "lng": 9,0301294
+        },
+        {
+            "id": "stop_vig",
+            "name": "Vigano",
+            "lat": 45,3799770,
+            "lng": 9,0282039
+        },
+        {
             "id": "stop_vito",
             "name": "San Vito",
             "lat": 45.419784,
@@ -10650,4 +10662,5 @@ if (typeof window !== "undefined") {
 if (typeof module !== "undefined") {
     module.exports = stavData;
 }
+
 
