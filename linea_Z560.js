@@ -29,7 +29,7 @@ const linea_Z560 = {
                         "variation": "Direzione Gudo Visconti"
                     },
                     {
-                        "stopId": "stop_gudo_corn",
+                        "stopId": "stop_gud_corn",
                         "time": "06:36"
                     },
                     {
@@ -408,7 +408,7 @@ const linea_Z560 = {
                         "variation": "Direzione Gudo Visconti"
                     },
                     {
-                        "stopId": "stop_gudo_corn",
+                        "stopId": "stop_gud_corn",
                         "time": "06:49"
                     },
                     {
