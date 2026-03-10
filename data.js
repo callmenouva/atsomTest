@@ -1,6 +1,7 @@
 const stavData = {
     stops: stavStops,
     lines: [
+        linea_1,
         linea_Z551,
         linea_Z552,
         linea_Z553,

@@ -478,6 +478,166 @@ ul {
     font-size: 1.1rem;
 }
 
+.results-list li.stop-ticket-card {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0;
+    /* padding reset for ticket parts */
+    overflow: hidden;
+}
+
+.stop-ticket-header {
+    display: flex;
+    align-items: center;
+    padding: 1.2rem;
+}
+
+.stop-ticket-icon {
+    margin-right: 15px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 8px;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.stop-ticket-name {
+    flex: 1;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.stop-ticket-distance {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 400;
+    margin-left: 10px;
+    white-space: nowrap;
+}
+
+.stop-ticket-divider {
+    height: 1px;
+    width: 100%;
+    border-top: 2px dashed rgba(255, 255, 255, 0.2);
+    position: relative;
+}
+
+.stop-ticket-divider::before,
+.stop-ticket-divider::after {
+    content: '';
+    position: absolute;
+    top: -8px;
+    width: 16px;
+    height: 16px;
+    background: var(--bg-dark);
+    border-radius: 50%;
+}
+
+.stop-ticket-divider::before {
+    left: -8px;
+}
+
+.stop-ticket-divider::after {
+    right: -8px;
+}
+
+.stop-ticket-footer {
+    padding: 0.8rem 1.2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.ticket-line-chip {
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.empty-state-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 1rem;
+    text-align: center;
+}
+
+.empty-state-img {
+    width: 100px;
+    height: auto;
+    margin-bottom: 0.8rem;
+}
+
+.empty-state-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+}
+
+.empty-state-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    max-width: 90%;
+    line-height: 1.3;
+}
+
+.btn-return-center {
+    margin-top: 15px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #0984e3, #74b9ff);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(9, 132, 227, 0.4);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: inherit;
+}
+
+.btn-return-center:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(9, 132, 227, 0.6);
+}
+
+.btn-return-center:active {
+    transform: translateY(1px);
+}
+
+.results-list li.line-result-card {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.line-result-header {
+    display: flex;
+    align-items: center;
+    padding: 1.2rem;
+    gap: 15px;
+}
+
+.line-result-dest {
+    flex: 1;
+    line-height: 1.2;
+}
+
 .results-list li:hover {
     background: var(--accent);
     transform: translateY(-2px);
@@ -1000,6 +1160,35 @@ ul {
     display: flex;
     flex-direction: column;
     gap: 8px;
+}
+
+.timeline-list-premium {
+    padding: 20px;
+}
+
+.timeline-row {
+    display: flex;
+    min-height: 60px;
+    align-items: flex-start;
+    transition: background-color 0.3s;
+    border-radius: 12px;
+    padding: 8px;
+    cursor: pointer;
+}
+
+.timeline-row:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.timeline-time {
+    width: 65px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-white);
+    text-align: right;
+    padding-right: 15px;
+    padding-top: 2px;
+    flex-shrink: 0;
 }
 
 .popup-header {
@@ -1810,7 +1999,8 @@ ul {
     position: absolute;
     top: 24px;
     bottom: -4px;
-    left: 9px;
+    left: 20px;
+    transform: translateX(-50%);
     width: 6px;
     border-radius: 3px;
     z-index: 1;
@@ -2093,4 +2283,378 @@ ul {
 .route-stop-marker {
     background: transparent;
     border: none;
+}
+
+/* ---------------------------------
+   VARIAZIONI LINEA (Generic Timeline Tabs)
+--------------------------------- */
+.variations-tabs-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding: 0.2rem 0;
+    width: 100%;
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE an Edge */
+}
+
+.variations-tabs-container::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari, Opera */
+}
+
+.variation-tab {
+    padding: 0.4rem 0.8rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    color: var(--text-color);
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    opacity: 0.7;
+}
+
+.variation-tab:hover {
+    background: var(--bg-deep);
+    opacity: 1;
+}
+
+.variation-tab.active {
+    background: var(--accent-blue);
+    color: white;
+    border-color: var(--accent-blue);
+    opacity: 1;
+    box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3);
+}
+
+/* ---------------------------------------------------
+   PLAY STORE STYLE INSTALL PAGE
+--------------------------------------------------- */
+.play-store-card {
+    background: var(--bg-dark);
+    /* Keep app theme instead of generic white */
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+    min-height: 100vh;
+    border-radius: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Override existing install-overlay centering */
+.install-overlay.play-store-layout {
+    display: block;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 0;
+}
+
+.play-store-header {
+    display: flex;
+    padding: 24px 20px 16px;
+    gap: 20px;
+}
+
+.play-store-icon {
+    width: 90px;
+    height: 90px;
+    border-radius: 20%;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    object-fit: cover;
+    background: white;
+}
+
+.play-store-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.play-store-title {
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin: 0 0 2px 0;
+    line-height: 1.2;
+}
+
+.play-store-dev {
+    color: #ffffff;
+    /* Play store green for dev name */
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.play-store-category {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin: 2px 0 10px 0;
+}
+
+.play-store-stats {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 5px;
+}
+
+.play-store-stats .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.play-store-stats .stat span {
+    font-weight: 700;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.play-store-stats .stat small {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    margin-top: 2px;
+}
+
+.stat-divider {
+    width: 1px;
+    height: 24px;
+    background: var(--glass-border);
+}
+
+.pegi-icon {
+    border: 1px solid var(--text-white);
+    border-radius: 4px;
+    padding: 0 4px;
+    font-size: 0.8rem !important;
+}
+
+.play-store-actions {
+    padding: 10px 20px 20px;
+    border-bottom: 8px solid rgba(255, 255, 255, 0.05);
+    /* Slight separation */
+}
+
+.btn-play-install {
+    width: 100%;
+    background: #ffffff;
+    /* Play store primary button color */
+    color: rgb(0, 0, 0);
+    border: none;
+    border-radius: 30px;
+    padding: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    margin-bottom: 12px;
+}
+
+.btn-play-install:hover {
+    background: #cacaca;
+}
+
+.btn-play-install:active {
+    transform: scale(0.98);
+}
+
+.play-store-secure {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin: 0;
+}
+
+.play-store-secure svg {
+    color: white;
+}
+
+/* iOS instructions with Play Store flair */
+.play-ios-steps {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 15px;
+}
+
+.ios-title {
+    margin-bottom: 12px;
+    font-size: 1.1rem;
+    color: var(--text-white);
+}
+
+.play-store-gallery-container {
+    padding: 20px 0;
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+}
+
+.play-store-gallery-container::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari and Opera */
+}
+
+.play-store-gallery {
+    display: flex;
+    gap: 12px;
+    padding: 0 20px;
+}
+
+.play-store-gallery img {
+    height: 250px;
+    /* Adjust based on actual aspect ratio */
+    width: auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    object-fit: cover;
+    border: 1px solid var(--glass-border);
+}
+
+.play-store-about {
+    padding: 20px;
+}
+
+.play-store-about h2 {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.play-store-about p {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.85);
+    margin-bottom: 15px;
+}
+
+.play-store-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.play-store-tags .tag {
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-white);
+    background: rgba(255, 255, 255, 0.05);
+
+    .play-store-header.minimal-header {
+        align-items: center;
+        padding-bottom: 20px;
+        border-bottom: 8px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .minimal-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+        text-align: left;
+        /* Assicuro allineamento a sinistra */
+    }
+
+    /* Pulsante Install bianco per versione minimal */
+    .btn-play-install.btn-minimal-white {
+        background: #ffffff;
+        color: var(--bg-dark);
+        /* Testo blu scuro come lo sfondo */
+        box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-play-install.btn-minimal-white:hover {
+        background: #f0f0f0;
+    }
+
+.play-store-actions.minimal-actions {
+        border-bottom: none;
+        padding-top: 20px;
+    }
+
+    .play-store-gallery-container.minimal-gallery {
+        padding-top: 10px;
+        padding-bottom: 30px;
+    }
+}
+
+/* Image Gallery Modal (Lightbox) */
+.image-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.image-modal.show {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: fadeInModal 0.3s ease;
+}
+
+@keyframes fadeInModal {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.image-modal .modal-content {
+    max-width: 90%;
+    max-height: 85%;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    object-fit: contain;
+    animation: zoomInModal 0.3s ease;
+}
+
+@keyframes zoomInModal {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.image-modal .close-modal {
+    position: absolute;
+    top: 30px;
+    right: 40px;
+    color: #ffffff;
+    font-size: 40px;
+    font-weight: 300;
+    cursor: pointer;
+    z-index: 10000;
+    transition: color 0.2s;
+    line-height: 1;
+}
+
+.image-modal .close-modal:hover {
+    color: #aaaaaa;
 }

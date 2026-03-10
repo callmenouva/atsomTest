@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (document.getElementById('map')) {
         map = L.map('map', { zoomControl: false }).setView([45.41, 8.95], 11);
+        window.appMap = map;
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
@@ -19,6 +20,28 @@ document.addEventListener('DOMContentLoaded', () => {
             iconAnchor: [18, 36]
         });
 
+        // Pre-calculate lines passing through each stop to avoid doing it on every render
+        stavData.stops.forEach(stop => {
+            stop.passingLines = [];
+            stavData.lines.forEach(line => {
+                let passesHere = false;
+                for (let dayVariant in line.dayTypes) {
+                    const variantTrips = line.dayTypes[dayVariant];
+                    if (variantTrips && variantTrips.some(trip => trip.stops.some(st => st.stopId === stop.id))) {
+                        passesHere = true;
+                        break;
+                    }
+                }
+                if (passesHere) {
+                    stop.passingLines.push({
+                        id: line.id,
+                        color: line.color,
+                        txColor: line.txColor
+                    });
+                }
+            });
+        });
+
         stavData.stops.forEach(stop => {
             if (stop.lat && stop.lng) {
                 const marker = L.marker([stop.lat, stop.lng], { icon: stopIcon }).addTo(map);
@@ -28,6 +51,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 markers.push({ stop, marker });
             }
         });
+
+        // Event listeners to update markers and list on map changes
+        map.on('moveend', () => {
+            if (!activeStop || activeStop.id === "user_location_stop") {
+                renderLists(searchInput.value ? searchInput.value.toLowerCase().trim() : "");
+            }
+        });
+
+        map.on('zoomend', () => {
+            if (!activeStop || activeStop.id === "user_location_stop") {
+                renderLists(searchInput.value ? searchInput.value.toLowerCase().trim() : "");
+            }
+        });
+
+        // Helper function for empty state button
+        window.centerMapOnAllStops = function () {
+            if (window.appMap && typeof stavData !== 'undefined' && stavData.stops) {
+                const validStops = stavData.stops.filter(s => s.lat && s.lng);
+                if (validStops.length > 0) {
+                    const bounds = L.latLngBounds(validStops.map(s => [s.lat, s.lng]));
+                    window.appMap.fitBounds(bounds, { padding: [40, 40] });
+                }
+            }
+        };
     }
 
     // Riferimenti DOM
@@ -286,86 +333,373 @@ document.addEventListener('DOMContentLoaded', () => {
             stopsToRender.forEach(stop => stop.distance = Infinity);
         }
 
-        // Se l'utente sta cercando, filtriamo e NON mostriamo "Vicino a te" separato, ma solo i risultati liberi
+        const mapZoom = map ? map.getZoom() : 0;
+        const MIN_ZOOM = 14;
+
+        // Gestione visibilità marker sulla mappa
+        if (map) {
+            if (mapZoom < MIN_ZOOM) {
+                markers.forEach(m => {
+                    if (map.hasLayer(m.marker)) map.removeLayer(m.marker);
+                });
+            } else {
+                markers.forEach(m => {
+                    if (!map.hasLayer(m.marker)) map.addLayer(m.marker);
+                });
+            }
+        }
+
+        // === RICERCA ATTIVA ==============================
         if (query.length > 0) {
             nearbySection.classList.add('hidden');
             allStopsTitle.textContent = "Risultati ricerca";
 
-            const filtered = stopsToRender.filter(stop => stop.name.toLowerCase().includes(query));
+            let searchItems = [];
 
-            if (filtered.length === 0) {
-                searchResults.innerHTML = '<li style="color:var(--text-muted); cursor:default; justify-content:center;">Nessuna fermata trovata.</li>';
+            // 1. Cerca nelle Linee (es. Z553)
+            stavData.lines.forEach(line => {
+                if (line.id.toLowerCase().includes(query) || line.name.toLowerCase().includes(query)) {
+                    // Estrai destinazioni uniche per questa linea
+                    const destinations = new Set();
+                    for (let day in line.dayTypes) {
+                        line.dayTypes[day].forEach(trip => {
+                            destinations.add(trip.destination);
+                        });
+                    }
+
+                    destinations.forEach(dest => {
+                        searchItems.push({
+                            type: 'line',
+                            lineId: line.id,
+                            lineName: line.name,
+                            color: line.color,
+                            txColor: line.txColor,
+                            destination: dest
+                        });
+                    });
+                }
+            });
+
+            // 2. Cerca nelle Fermate
+            const filteredStops = stopsToRender.filter(stop => stop.name.toLowerCase().includes(query));
+            if (userLocation) {
+                filteredStops.sort((a, b) => a.distance - b.distance);
+            }
+
+            // Unisci risultati (Linee prima, poi Fermate)
+            filteredStops.forEach(stop => {
+                searchItems.push({
+                    type: 'stop',
+                    ...stop
+                });
+            });
+
+            if (searchItems.length === 0) {
+                searchResults.innerHTML = '<div style="text-align:center; padding: 2rem 1rem; color:var(--text-muted);">Nessuna fermata o linea trovata per questa ricerca.</div>';
                 return;
             }
 
-            // Ordina per vicinanza se possibile
-            if (userLocation) {
-                filtered.sort((a, b) => a.distance - b.distance);
-            }
-
-            appendStopsToList(filtered, searchResults);
+            appendStopsToList(searchItems, searchResults);
             return;
         }
 
-        // Nessuna ricerca in corso.
-        allStopsTitle.textContent = "Tutte le fermate";
+        // === NESSUNA RICERCA ==============================
 
-        if (userLocation) {
-            // Dividi in vicine (es. < 5km) e tutte le altre
-            // Oppure prendi semplicemente le 3 più vicine e mettile sopra
-            stopsToRender.sort((a, b) => a.distance - b.distance);
+        nearbySection.classList.add('hidden');
 
-            const nearbyStops = stopsToRender.filter(stop => stop.distance <= 1); // Raggio massimo 1 km
-
-            if (nearbyStops.length > 0) {
-                nearbySection.classList.remove('hidden');
-                // Prendi al max le 2 più vicine da mostrare in alto
-                const topNearby = nearbyStops.slice(0, 2);
-                appendStopsToList(topNearby, nearbyResults, true);
-
-                // Mettiamo il resto (o tutte le altre per non confondere) nella lista sotto
-                // Decidiamo qui di mostrare le altre sotto (o tutte sotto)
-                // Per pulizia, mostriamo quelle NON incluse in nearbyResults sotto
-                const otherStops = stopsToRender.filter(s => !topNearby.includes(s));
-
-                // Alfabetico per "tutte le altre" in modo da essere prevedibile
-                otherStops.sort((a, b) => a.name.localeCompare(b.name));
-                appendStopsToList(otherStops, searchResults);
-            } else {
-                // Posizione rilevata ma niente nel raggio di 10km
-                nearbySection.classList.add('hidden');
-                stopsToRender.sort((a, b) => a.name.localeCompare(b.name));
-                appendStopsToList(stopsToRender, searchResults);
-            }
-
-        } else {
-            // Nessuna posizione
-            nearbySection.classList.add('hidden');
-            stopsToRender.sort((a, b) => a.name.localeCompare(b.name));
-            appendStopsToList(stopsToRender, searchResults);
+        // Se lo zoom è troppo basso
+        if (map && mapZoom < MIN_ZOOM) {
+            allStopsTitle.textContent = "Fermate sulla mappa";
+            searchResults.innerHTML = `
+                <div class="empty-state-container">
+                    <img src="img/LentePiu.png" alt="Zoom In" class="empty-state-img">
+                    <div class="empty-state-title">Non vedi nulla?</div>
+                    <div class="empty-state-subtitle">Aumenta lo zoom per visualizzare le fermate ed i servizi disponibili.</div>
+                </div>
+            `;
+            return;
         }
+
+        // Se lo zoom è sufficiente (o se non c'è mappa per qualche motivo)
+        allStopsTitle.textContent = "Fermate visibili";
+
+        if (map) {
+            const bounds = map.getBounds();
+            // Filtra solo le fermate visibili nel current bound
+            stopsToRender = stopsToRender.filter(stop => {
+                if (!stop.lat || !stop.lng) return false;
+                return bounds.contains([stop.lat, stop.lng]);
+            });
+
+            if (stopsToRender.length === 0) {
+                searchResults.innerHTML = `
+                    <div class="empty-state-container">
+                        <img src="img/LentePuntoDiDomanda.png" alt="Zona senza STAV" class="empty-state-img">
+                        <div class="empty-state-title">STAV non è qui!</div>
+                        <div class="empty-state-subtitle">Spostati nell'area di servizio per scoprire le fermate.</div>
+                        <button onclick="if(window.centerMapOnAllStops) window.centerMapOnAllStops()" class="btn-return-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                            Torna all'area STAV
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+        }
+
+        // Ordina alfabeticamente per la view della lista
+        stopsToRender.sort((a, b) => a.name.localeCompare(b.name));
+        appendStopsToList(stopsToRender, searchResults);
     }
 
-    function appendStopsToList(stopsArray, listElement, showDistance = false) {
-        stopsArray.forEach(stop => {
+    function appendStopsToList(itemsArray, listElement, showDistance = false) {
+        itemsArray.forEach(item => {
             const li = document.createElement('li');
 
-            let distanceHtml = '';
-            if (showDistance && stop.distance !== Infinity) {
-                let distStr = stop.distance < 1 ? Math.round(stop.distance * 1000) + ' m' : stop.distance.toFixed(1) + ' km';
-                distanceHtml = `<div style="margin-left:auto; font-size:0.85rem; color:var(--text-muted);">${distStr}</div>`;
-            }
+            if (item.type === 'line') {
+                li.className = 'line-result-card';
+                li.addEventListener('click', () => openGenericLineTimeline(item.lineId, item.destination));
 
-            li.innerHTML = `
-                <div class="stop-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                </div>
-                <span>${stop.name}</span>
-                ${distanceHtml}
-            `;
-            li.addEventListener('click', () => openStopDetails(stop));
+                li.innerHTML = `
+                    <div class="line-result-header">
+                        <div class="ticket-line-chip" style="background-color: ${item.color}; color: ${item.txColor}; font-size: 1rem; padding: 4px 10px;">
+                            ${item.lineId}
+                        </div>
+                        <div class="line-result-dest">
+                            <span style="font-size: 0.8rem; color: var(--text-muted); display: block;">Direzione</span>
+                            <span style="font-weight: 600;">${item.destination}</span>
+                        </div>
+                        <svg class="chevron-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </div>
+                `;
+            } else {
+                // E' una fermata (compatibilità con type='stop' o oggetti stop normali)
+                const stop = item.type === 'stop' ? item : { ...item };
+                li.className = 'stop-ticket-card';
+                li.addEventListener('click', () => openStopDetails(stop));
+
+                let distanceHtml = '';
+                if (showDistance && stop.distance !== Infinity) {
+                    let distStr = stop.distance < 1 ? Math.round(stop.distance * 1000) + ' m' : stop.distance.toFixed(1) + ' km';
+                    distanceHtml = `<div class="stop-ticket-distance">${distStr}</div>`;
+                }
+
+                let linesHtml = '';
+                if (stop.passingLines && stop.passingLines.length > 0) {
+                    const uniqueLines = Array.from(new Map(stop.passingLines.map(l => [l.id, l])).values());
+                    linesHtml = uniqueLines.map(l =>
+                        `<div class="ticket-line-chip" style="background-color: ${l.color}; color: ${l.txColor};">${l.id}</div>`
+                    ).join('');
+                } else {
+                    linesHtml = '<div style="font-size:0.8rem; color:var(--text-muted); padding:2px 0;">Nessuna linea</div>';
+                }
+
+                li.innerHTML = `
+                    <div class="stop-ticket-header">
+                        <div class="stop-ticket-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                        </div>
+                        <div class="stop-ticket-name">${stop.name}</div>
+                        ${distanceHtml}
+                    </div>
+                    <div class="stop-ticket-divider"></div>
+                    <div class="stop-ticket-footer">
+                        ${linesHtml}
+                    </div>
+                `;
+            }
             listElement.appendChild(li);
         });
+    }
+
+    // Navigazione Rapida dalla Timeline a una Fermata
+    window.openStopFromTimeline = function (stopId) {
+        const stop = stavData.stops.find(s => s.id === stopId);
+        if (stop) {
+            closeModal(); // Chiude eventuale timeline e dettagli correnti
+
+            setTimeout(() => {
+                openStopDetails(stop);
+                // Centra la mappa sulla nuova fermata con zoom 16
+                if (window.appMap && stop.lat && stop.lng) {
+                    window.appMap.flyTo([stop.lat - 0.005, stop.lng], 16, { animate: true });
+                }
+            }, 300); // Attende la fine dell'animazione di chiusura
+        }
+    };
+
+    // Apertura Timeline Generica per una Linea
+    function openGenericLineTimeline(lineId, destination) {
+        const line = stavData.lines.find(l => l.id === lineId);
+        if (!line) return;
+
+        // Trova tutte le variazioni per questa destinazione
+        const variationsMap = new Map(); // pathName -> trip con più fermate per quel pathName
+
+        for (let day in line.dayTypes) {
+            line.dayTypes[day].forEach(trip => {
+                if (trip.destination === destination) {
+                    // Trova il nome del path. Assumiamo che la prima fermata con 'variation' definisca il path, 
+                    // oppure default "Principale"
+                    let pathName = "Principale";
+                    const firstVariationStop = trip.stops.find(s => s.variation);
+                    if (firstVariationStop) {
+                        pathName = firstVariationStop.variation;
+                    }
+
+                    const existingTrip = variationsMap.get(pathName);
+                    if (!existingTrip || trip.stops.length > existingTrip.stops.length) {
+                        variationsMap.set(pathName, trip);
+                    }
+                }
+            });
+        }
+
+        if (variationsMap.size === 0) return;
+
+        // Seleziona la prima variante (o "Principale" se esiste)
+        let activeVariation = variationsMap.has("Principale") ? "Principale" : Array.from(variationsMap.keys())[0];
+        let bestTrip = variationsMap.get(activeVariation);
+
+        // Riutilizziamo la bottom sheet, ma nascondiamo routesContainer e mostriamo in-sheet-timeline
+        activeStop = null; // Nessuna fermata attiva in questo stato
+        stopNameHeader.textContent = `${lineId} - Verso ${destination}`;
+
+        const chipsContainer = document.querySelector('.day-chips-container');
+        if (chipsContainer) chipsContainer.style.display = 'none';
+
+        const subtitleEl = document.querySelector('.subtitle');
+        if (subtitleEl) subtitleEl.textContent = 'Percorso della linea';
+
+        if (navBtn) {
+            navBtn.onclick = () => {
+                window.showTripOnMap(bestTrip.tripId, lineId);
+            };
+        }
+
+        overlay.classList.remove('hidden');
+        stopDetailsSheet.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+
+        routesContainer.style.display = 'none';
+
+        // Ripuliamo eventuali timeline esistenti
+        const existingTimeline = stopDetailsSheet.querySelector('.in-sheet-timeline');
+        if (existingTimeline) {
+            existingTimeline.remove();
+        }
+
+        renderGenericTimeline(variationsMap, activeVariation, line);
+    }
+
+    window.switchGenericTimelineVariation = function (pathName, lineId) {
+        // Ripeschiamo la linea e la mappa delle variazioni attualmente renderizzate
+        // Questo richiede di ricostruire o ripassare variationsMap, che per semplicità chiameremo ricreando openGenericLineTimeline
+        // Ma per non ricalcolare rifacciamo il calcolo
+        const line = stavData.lines.find(l => l.id === lineId);
+        if (!line) return;
+
+        let dest = stopNameHeader.textContent.split(' - Verso ')[1];
+        if (!dest) return;
+
+        const variationsMap = new Map();
+        for (let day in line.dayTypes) {
+            line.dayTypes[day].forEach(trip => {
+                if (trip.destination === dest) {
+                    let pName = "Principale";
+                    const fvStop = trip.stops.find(s => s.variation);
+                    if (fvStop) pName = fvStop.variation;
+
+                    const exTrip = variationsMap.get(pName);
+                    if (!exTrip || trip.stops.length > exTrip.stops.length) {
+                        variationsMap.set(pName, trip);
+                    }
+                }
+            });
+        }
+
+        renderGenericTimeline(variationsMap, pathName, line);
+    };
+
+    function renderGenericTimeline(variationsMap, activeVariation, line) {
+        let timelineEl = stopDetailsSheet.querySelector('.in-sheet-timeline');
+        if (timelineEl) {
+            timelineEl.remove();
+        }
+
+        const trip = variationsMap.get(activeVariation);
+        if (!trip) return;
+
+        timelineEl = document.createElement('div');
+        timelineEl.className = 'in-sheet-timeline slide-in-right-premium';
+        stopDetailsSheet.querySelector('.sheet-content').appendChild(timelineEl);
+
+        timelineEl.style.display = 'flex';
+        timelineEl.style.flexDirection = 'column';
+        timelineEl.style.flex = '1';
+        timelineEl.style.overflowY = 'hidden';
+
+        void timelineEl.offsetWidth;
+        timelineEl.classList.add('slide-in-right');
+
+        let tabsHtml = '';
+        if (variationsMap.size > 1) {
+            tabsHtml = `<div class="variations-tabs-container">`;
+            for (let [pName, pTrip] of variationsMap.entries()) {
+                const isActive = pName === activeVariation ? 'active' : '';
+                tabsHtml += `
+                    <button class="variation-tab ${isActive}" onclick="window.switchGenericTimelineVariation('${pName}', '${line.id}')">
+                        ${pName}
+                    </button>
+                `;
+            }
+            tabsHtml += `</div>`;
+        }
+
+        let html = `
+            <div class="timeline-header" style="position: sticky; top: 0; background: var(--bg-deep); z-index: 10; padding: 1rem 0; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 0.5rem;">
+                <div style="display: flex; align-items: center; gap: 1rem; width: 100%;">
+                    <button class="back-btn" onclick="window.closeTripDetail()" style="padding: 0.5rem; background: var(--bg-card); border-radius: 50%; border: none; color: white; cursor: pointer;">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    </button>
+                    <div class="header-text" style="flex: 1;">
+                        <h2 style="font-size:1.2rem; font-weight:800; margin:0;">Linea ${line.name}</h2>
+                        <p style="opacity:0.6; margin:0; font-size:0.85rem;">Dir. ${trip.destination}</p>
+                    </div>
+                    <button onclick="window.showTripOnMap('${trip.tripId}', '${line.id}')" style="padding: 0.5rem 0.8rem; background: ${line.color}; border: none; cursor: pointer; border-radius: 8px; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; font-weight: 600; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon><line x1="9" y1="3" x2="9" y2="18"></line><line x1="15" y1="6" x2="15" y2="21"></line></svg>
+                        Mappa
+                    </button>
+                </div>
+                ${tabsHtml}
+            </div>
+            <div class="timeline-scroll" style="flex: 1; overflow-y: auto; padding: 1rem 0 3rem 0; position: relative;">
+        `;
+
+        trip.stops.forEach((s, idx) => {
+            const stopInfo = stavData.stops.find(fs => fs.id === s.stopId);
+            const stopName = stopInfo ? stopInfo.name : 'Fermata';
+
+            html += `
+                <div id="generic-timeline-row-${s.stopId}" class="timeline-row" style="cursor: pointer; transition: background-color 1s ease-out;" onclick="window.openStopFromTimeline('${s.stopId}')">
+                    <div class="timeline-graphic">
+                        <div class="timeline-line" style="background:${line.color}"></div>
+                        <div class="timeline-node" style="border-color:${line.color};"></div>
+                    </div>
+                    <div class="timeline-content" style="padding-top: 10px; padding-bottom: 10px;">
+                        <div class="stop-name">${stopName}</div>
+                    </div>
+                    ${idx < trip.stops.length - 1 ? `
+                    <div class="timeline-chevron">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        });
+
+        html += `</div>`;
+        timelineEl.innerHTML = html;
     }
 
     // 3. Aprire i dettagli della fermata (BOTTOM SHEET MODAL)
@@ -410,7 +744,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (isMobile) {
                     // Il protocollo 'geo:' fa si che il sistema operativo mobile chieda 
                     // all'utente quale app di mappe vuole usare.
-                    const url = `geo:${stop.lat},${stop.lng}?q=${stop.lat},${stop.lng}`;
+                    const url = `geo:${stop.lat},${stop.lng}?q = ${stop.lat},${stop.lng} `;
                     window.location.href = url;
                 } else {
                     // Su PC, apri direttamente Google Maps in una nuova scheda

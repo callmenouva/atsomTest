@@ -4,18 +4,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#11335C">
+    <meta name="theme-color" content="#4f46e5">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="manifest.json">
     <title>myATSOM | Download</title>
     <link rel="icon" type="image/png" href="FavIconAtsom.png">
+    
+    <!-- Supporto PWA iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="myATSOM">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    
     <script>
         (function () {
             // Rilevamento istantaneo: se siamo in PWA, vai subito a app.html
@@ -27,44 +32,94 @@
     </script>
 </head>
 
-<body class="install-body">
-    <!-- SCREEN DI INSTALLAZIONE OBBLIGATORIA -->
-    <div id="install-overlay" class="install-overlay">
-        <div class="install-card">
-            <img src="atsom.png" alt="ATSOM Logo" class="install-logo">
-            <h2>Installa l'App</h2>
-            <p>Per utilizzare <strong>myATSOM</strong> su PC o Smartphone e avere gli orari sempre pronti, devi
-                installare l'app sul tuo
-                dispositivo.</p>
+<body class="landing-body">
+    <!-- Animated Mesh Background -->
+    <div class="mesh-gradient"></div>
 
-            <!-- Sezione per PC (Windows/Mac) e Android -->
-            <div id="install-instructions-android" class="install-instructions hidden">
-                <button id="install-button" class="install-btn-premium">Installa l'App</button>
+    <!-- NAVBAR LONDON -->
+    <nav class="navbar">
+        <a href="index.html" style="display: flex; align-items: center; text-decoration: none;">
+            <img src="atsom.png" alt="ATSOM Logo"
+                style="height: 48px; width: auto; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.2));">
+        </a>
+        <div class="nav-links">
+            <a href="index.html#features">Funzionalità</a>
+            <a href="index.html#about">Chi Siamo</a>
+            <a href="install.html" class="nav-btn-right">Installa ora</a>
+        </div>
+        <!-- Menu Toggle per Mobile -->
+        <button class="menu-toggle" id="menuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </nav>
+
+    <!-- INSTALL UI (Re-used play store layout) -->
+    <section class="london-section" style="padding-top: 150px; padding-bottom: 50px; min-height: calc(100vh - 200px); display: flex; justify-content: center; align-items: flex-start;">
+        <div class="install-card minimal reveal" style="width: 100%; max-width: 600px; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 40px; padding: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
+            
+            <!-- Header App -->
+            <div class="play-store-header minimal-header" style="border-bottom-color: rgba(255,255,255,0.1);">
+                <img src="icon-512.png" alt="ATSOM Logo" class="play-store-icon">
+                <div class="play-store-info">
+                    <h1 class="play-store-title minimal-title" style="color: white;">myATSOM</h1>
+                </div>
             </div>
 
-            <!-- Sezione per iOS -->
-            <div id="install-instructions-ios" class="install-instructions hidden">
-                <div class="ios-steps">
-                    <div class="step">
-                        <span class="step-num">1</span>
-                        <p>Tocca l'icona <strong>Condividi</strong> in basso <svg width="20" height="20"
-                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                style="vertical-align: middle;">
-                                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
-                                <polyline points="16 6 12 2 8 6"></polyline>
-                                <line x1="12" y1="2" x2="12" y2="15"></line>
-                            </svg></p>
-                    </div>
-                    <div class="step">
-                        <span class="step-num">2</span>
-                        <p>Scorri e seleziona <strong>Aggiungi alla schermata Home</strong></p>
+            <!-- Install Actions -->
+            <div class="play-store-actions minimal-actions">
+                <!-- Sezione per Android/PC -->
+                <div id="install-instructions-android" class="install-instructions hidden">
+                    <button id="install-button" class="btn-play-install btn-minimal-white">Installa l'App</button>
+                </div>
+
+                <!-- Sezione per iOS -->
+                <div id="install-instructions-ios" class="install-instructions hidden">
+                    <div class="ios-steps play-ios-steps" style="background: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.05);">
+                        <p class="ios-title" style="color: white; margin-bottom: 12px;"><strong>Installa su iOS</strong></p>
+                        <div class="step" style="color: white;">
+                            <span class="step-num" style="background: rgba(255,255,255,0.2); color: white;">1</span>
+                            <p>Tocca l'icona <strong>Condividi</strong> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></p>
+                        </div>
+                        <div class="step" style="color: white;">
+                            <span class="step-num" style="background: rgba(255,255,255,0.2); color: white;">2</span>
+                            <p>Seleziona <strong>Aggiungi alla schermata Home</strong> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg></p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <p class="install-footer">Una volta installata, apri l'app dalla home screen o dal menu del PC.</p>
+            <!-- Gallery -->
+            <div class="play-store-gallery-container minimal-gallery">
+                <div class="play-store-gallery">
+                    <img src="ScreenApp/App1.png" alt="Screenshot 1">
+                    <img src="ScreenApp/App2.png" alt="Screenshot 2">
+                    <img src="ScreenApp/App3.png" alt="Screenshot 3">
+                    <img src="ScreenApp/App4.png" alt="Screenshot 4">
+                    <img src="ScreenApp/App5.png" alt="Screenshot 5">
+                </div>
+            </div>
+
         </div>
+    </section>
+
+    <!-- Modal for Image Enlargement -->
+    <div id="imageModal" class="image-modal hidden">
+        <span class="close-modal">&times;</span>
+        <img class="modal-content" id="expandedImg">
     </div>
+
+    <!-- FOOTER LONDON -->
+    <footer style="padding: 5rem 10% 2rem; border-top: 1px solid rgba(255,255,255,0.05); text-align: center; position: relative; z-index: 2;">
+        <div style="margin-bottom: 3rem; opacity: 0.8;">
+            <img src="atsom.png" alt="ATSOM Logo"
+                style="height: 60px; width: auto; filter: grayscale(1) invert(1) brightness(2);">
+        </div>
+        <p style="color: rgba(255,255,255,0.4); font-size: 0.8rem; font-weight: 500;">&copy; 2026 ATSOM |
+            Associazione
+            Trasporti Sud Ovest Milanese. Tutti i diritti riservati.</p>
+    </footer>
 
     <!-- Script Logica Installazione -->
     <script>
@@ -74,10 +129,12 @@
             const androidInstructions = document.getElementById('install-instructions-android');
             const iosInstructions = document.getElementById('install-instructions-ios');
 
-            if (isIOS) {
-                iosInstructions.classList.remove('hidden');
-            } else {
-                androidInstructions.classList.remove('hidden');
+            if (androidInstructions && iosInstructions) {
+                if (isIOS) {
+                    iosInstructions.classList.remove('hidden');
+                } else {
+                    androidInstructions.classList.remove('hidden');
+                }
             }
 
             // Gestione pulsante installazione
@@ -105,6 +162,64 @@
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('sw.js');
             }
+        })();
+
+        // Navbar Scroll Logic
+        const nav = document.querySelector('.navbar');
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.querySelector('.nav-links');
+
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        // Hamburger Menu Toggle
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            menuToggle.classList.toggle('active');
+        });
+
+        // Chiudi menu quando si clicca un link
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+                menuToggle.classList.remove('active');
+            });
+        });
+
+        // Reveal on Scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('active');
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // Logic for Image Gallery Modal
+        (function() {
+            const modal = document.getElementById("imageModal");
+            const expandedImg = document.getElementById("expandedImg");
+            const images = document.querySelectorAll(".play-store-gallery img");
+            
+            images.forEach(img => {
+                img.style.cursor = 'pointer';
+                img.addEventListener("click", function(){
+                    modal.classList.remove("hidden");
+                    modal.classList.add("show");
+                    expandedImg.src = this.src;
+                });
+            });
+
+            // Chiudi cliccando ovunque nel modal (inclusa la X)
+            modal.addEventListener("click", function() {
+                modal.classList.add("hidden");
+                modal.classList.remove("show");
+            });
         })();
     </script>
 </body>

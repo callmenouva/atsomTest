@@ -392,6 +392,119 @@ const stavStops = [
         "lat": 45.420793,
         "lng": 9.075671
     },
+
+    // fermate linee trezzano
+
+    {
+        "id": "stop_trez_fs",
+        "name": "Trezzano sul Naviglio - Stazione FS",
+        "lat": 45.420797,
+        "lng": 9.067003,
+        "connections": [
+            { "name": "S9", "color": "#A4328A", "txColor": "#ffffff", "icon": "img/S9Logo.png" },
+            { "name": "S19", "color": "#67032F", "txColor": "#ffffff", "icon": "img/S19Logo.png" }
+        ]
+    },
+    {
+        "id": "stop_trez_concordia",
+        "name": "Trezzano sul Naviglio - Via Concordia/Scuola",
+        "lat": 45.422926,
+        "lng": 9.068918
+    },
+    {
+        "id": "stop_trez_treves/angelo",
+        "name": "Trezzano sul Naviglio - Via Treves/S. Angelo",
+        "lat": 45.419341,
+        "lng": 9.068462
+    },
+    {
+        "id": "stop_trez_treves/volontari",
+        "name": "Trezzano sul Naviglio - Via Treves/Volontari S.",
+        "lat": 45.417517,
+        "lng": 9.063785
+    },
+    {
+        "id": "stop_trez_treves/angelo3",
+        "name": "Trezzano sul Naviglio - Via Treves/S. Angelo 3",
+        "lat": 45.419324,
+        "lng": 9.068608
+    },
+    {
+        "id": "stop_trez_indipendenza",
+        "name": "Trezzano sul Naviglio - Via Indipendenza",
+        "lat": 45.418668,
+        "lng": 9.070352
+    },
+    {
+        "id": "stop_trez_cristoforo/giacosa",
+        "name": "Trezzano sul Naviglio - Via S. Cristoforo/Giacosa",
+        "lat": 45.419759,
+        "lng": 9.076137
+    },
+    {
+        "id": "stop_trez_matteotti",
+        "name": "Trezzano sul Naviglio - Via Matteotti",
+        "lat": 45.418452,
+        "lng": 9.074476
+    },
+    {
+        "id": "stop_trez_virgilio",
+        "name": "Trezzano sul Naviglio - Via Virgilio",
+        "lat": 45.416135,
+        "lng": 9.074511
+    },
+    {
+        "id": "stop_trez_costa",
+        "name": "Trezzano sul Naviglio - Via Costa",
+        "lat": 45.417834,
+        "lng": 9.076334
+    },
+    {
+        "id": "stop_trez_francesco",
+        "name": "Trezzano sul Naviglio - Via S. Francesco",
+        "lat": 45.416061,
+        "lng": 9.079468
+    },
+    {
+        "id": "stop_trez_marchesina56",
+        "name": "Trezzano sul Naviglio - Via Marchesina 56",
+        "lat": 45.414501,
+        "lng": 9.079451
+    },
+    {
+        "id": "stop_trez_salvini1",
+        "name": "Trezzano sul Naviglio - Via Salvini 1",
+        "lat": 45.414435,
+        "lng": 9.076862
+    },
+    {
+        "id": "stop_trez_salvini2",
+        "name": "Trezzano sul Naviglio - Via Salvini 2",
+        "lat": 45.414509,
+        "lng": 9.074296
+    },
+    {
+        "id": "stop_trez_salerno",
+        "name": "Trezzano sul Naviglio - Via Salerno",
+        "lat": 45.414801,
+        "lng": 9.071410
+    },
+    {
+        "id": "stop_trez_croce",
+        "name": "Trezzano sul Naviglio - Via B. Croce",
+        "lat": 45.420077,
+        "lng": 9.070839
+    },
+    {
+        "id": "stop_trez_ticino",
+        "name": "Trezzano sul Naviglio - Via Ticino",
+        "lat": 45.421790,
+        "lng": 9.072115
+    },
+
+
+    // fermate linee normali
+
     {
         "id": "stop_ces_vig/gramsci",
         "name": "Cesano Boscone - Nuova Vigevanese/Gramsci",
@@ -610,13 +723,21 @@ const stavStops = [
         "id": "stop_mil_moro/merula",
         "name": "Milano - Via L. il Moro/Merula M4",
         "lat": 45.441292,
-        "lng": 9.130448
+        "lng": 9.130448,
+        "connections": [
+            { "name": "M4", "color": "#000080", "txColor": "#ffffff", "icon": "img/M4Logo.png" },
+            { "name": "47 - 324 - 325 - 95 - 351", "color": "#ffffffff", "txColor": "#ffffff", "icon": "img/ATMLogo.png" },
+        ]
     },
     {
         "id": "stop_mil_moro/merula2",
         "name": "Milano - Via L. il Moro/Merula M4",
         "lat": 45.441025,
-        "lng": 9.129412
+        "lng": 9.129412,
+        "connections": [
+            { "name": "M4", "color": "#000080", "txColor": "#ffffff", "icon": "img/M4Logo.png" },
+            { "name": "47 - 324 - 325 - 95 - 351", "color": "#ffffffff", "txColor": "#ffffff", "icon": "img/ATMLogo.png" },
+        ]
     },
     {
         "id": "stop_mil_moro/manfredonia",
@@ -693,6 +814,7 @@ const stavStops = [
             { "name": "M2", "color": "#5D9732", "txColor": "#ffffff", "icon": "img/M2Logo.png" },
             { "name": "S9", "color": "#A4328A", "txColor": "#ffffff", "icon": "img/S9Logo.png" },
             { "name": "S19", "color": "#67032F", "txColor": "#ffffff", "icon": "img/S19Logo.png" },
+            { "name": "R31", "color": "#0462AC", "txColor": "#ffffff", "icon": "img/RegioLogo.png" },
             { "name": "47 - 71 - 90 - 91 - 325 - 351", "color": "#ffffffff", "txColor": "#ffffff", "icon": "img/ATMLogo.png" },
             { "name": "83 - 94 - 172", "color": "#ffffffff", "txColor": "#ffffff", "icon": "img/AGVLogo.png" }
         ]
