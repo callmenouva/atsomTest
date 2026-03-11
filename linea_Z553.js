@@ -1242,7 +1242,7 @@ const linea_Z553 = {
                     },
                     {
                         "stopId": "stop_gagg_polo/corn2",
-                        "time": "07:"
+                        "time": "07:40"
                     },
                     {
                         "stopId": "stop_gagg_polo/vinci2",
